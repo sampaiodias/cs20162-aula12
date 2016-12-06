@@ -1,0 +1,11 @@
+{
+  "testsDuration" : {
+      "Test 0" : 1.2, 
+      "Test 1" : 0.1
+  },
+  "memoryStart" : 0.0,
+  "memoryEnd" : 0.0,
+  "errors" : {
+
+  }
+}

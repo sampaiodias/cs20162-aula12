@@ -1,13 +1,11 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2016. Fábrica de Software - Instituto de Informática (UFG)
+ * Creative Commons Attribution 4.0 International License.
  */
 package br.ufg.ing.cs.sampaiodias.qp;
 
 import br.ufg.inf.cs.sampaiodias.qp.QualidadeParser;
 import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -80,13 +78,6 @@ public class QualidadeParserTest {
     @Test
     public void tratarArgsVazia() {
         String[] test = new String[]{};
-        Assert.assertArrayEquals(new String[]{"ERROR ARGS"},
-                QualidadeParser.tratarArgs(test));
-    }
-
-    @Test
-    public void tratarArgsHelp() {
-        String[] test = new String[]{"help"};
         Assert.assertArrayEquals(new String[]{"ERROR ARGS"},
                 QualidadeParser.tratarArgs(test));
     }
