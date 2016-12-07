@@ -57,7 +57,8 @@ public final class Relatorio {
         relatorio.append("<td>").append((duracaoTestes[0]) / CONVERSAO_NS_MS);
         relatorio.append("ms</td>\n</tr>\n");
         relatorio.append("<td><b>Tempo médio: </b></td>\n");
-        relatorio.append("<td>").append((duracaoTestes[1]) / CONVERSAO_NS_MS);
+        relatorio.append("<td>").append((float)(duracaoTestes[0] / exp.length)
+                / CONVERSAO_NS_MS);
         relatorio.append("ms</td>\n</tr>\n");
         relatorio.append("<td><b>Num. de testes: </b></td>\n");
         relatorio.append("<td>").append(exp.length);
