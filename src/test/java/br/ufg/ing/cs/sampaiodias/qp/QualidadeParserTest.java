@@ -72,7 +72,7 @@ public class QualidadeParserTest {
     @Test
     public void tratarArgs1() {
         String[] test = {"1"};
-        Assert.assertArrayEquals(new String[]{"ERROR ARGS"}, 
+        Assert.assertArrayEquals(new String[]{"ERROR ARGS"},
                 QualidadeParser.tratarArgs(test));
     }
 

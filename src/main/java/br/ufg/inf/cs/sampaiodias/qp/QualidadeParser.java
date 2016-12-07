@@ -7,14 +7,10 @@ package br.ufg.inf.cs.sampaiodias.qp;
 import com.github.kyriosdata.parser.Lexer;
 import com.github.kyriosdata.parser.Parser;
 import com.github.kyriosdata.parser.Token;
-import java.io.FileNotFoundException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Programa que gera um relatório contendo a qualidade do Parser.
@@ -28,6 +24,14 @@ public final class QualidadeParser {
     private QualidadeParser() {
 
     }
+    /**
+     * Número de informações que o relatório receberá quanto a tempos.
+     */
+    private static final int TAM_VETOR_TEMPO = 4;
+    /**
+     * Flag para verificar se algum teste de expressão aconteceu.
+     */
+    private static boolean erroTestes = false;
 
     /**
      * Ponto de entrada da aplicação.
@@ -37,7 +41,7 @@ public final class QualidadeParser {
     public static void main(final String[] args) {
         String arquivoLocal = "C:/Users/lucas/Documents/teste.txt"; //TEST
         String arquivoRemoto = "https://google.com";                //TEST
-        String[] linhas = tratarArgs(new String[]{arquivoLocal});   //TEST - MUDAR PARA ARGS
+        String[] linhas = tratarArgs(new String[]{arquivoLocal});   //TEST ARGS
         Expressao[] expressoes;
         expressoes = new Expressao[linhas.length];
         long tempoInicial;
@@ -64,17 +68,17 @@ public final class QualidadeParser {
                 System.exit(i);
             }
             try {
-                expressoes[i].resultadoObtido
-                        = executarParser(expressoes[i]);
-                System.out.println(expressoes[i].resultadoObtido);
+                expressoes[i].setResObtido(executarParser(expressoes[i]));
             } catch (Exception e) {
-                expressoes[i].mensagemErro = ("Erro: Parse não pode encontrar "
-                        + "um resultado para " + expressoes[i].equacao);;
+                expressoes[i].setMsgErro("Erro: Parse não pode encontrar "
+                        + "um resultado para " + expressoes[i].getEquacao());
+                erroTestes = true;
             }
-            if ("".equals(expressoes[i].mensagemErro)) {
+            if ("".equals(expressoes[i].getMsgErro())) {
                 if (!expressoes[i].testeAcertou()) {
-                    expressoes[i].mensagemErro = ("Erro: Resultado esperado não"
+                    expressoes[i].setMsgErro("Erro: Resultado esperado não"
                             + " é igual a resposta recebida pelo Parser");
+                    erroTestes = true;
                 }
             }
         }
@@ -85,11 +89,11 @@ public final class QualidadeParser {
         duracaoEmNanoS = (tempoFinal - tempoInicial);
         tempoMedioEmNanoS = duracaoEmNanoS / expressoes.length;
 
-        long[] tempos = new long[4];
-        tempos[0] = tempoInicial;
-        tempos[1] = tempoFinal;
-        tempos[2] = duracaoEmNanoS;
-        tempos[3] = tempoMedioEmNanoS;
+        long[] tempos = new long[TAM_VETOR_TEMPO];
+        tempos[0] = duracaoEmNanoS;
+        tempos[1] = tempoMedioEmNanoS;
+        tempos[2] = tempoInicial;
+        tempos[TAM_VETOR_TEMPO - 1] = tempoFinal;
 
         try {
             if (args.length > 1 && args[1].toLowerCase().contains("-h")) {
@@ -99,8 +103,14 @@ public final class QualidadeParser {
             }
         } catch (Exception e) {
             System.out.println("Erro: Falha ao gerar o arquivo de relatório.");
+            System.exit(1);
+        }
+
+        if (erroTestes) {
+            System.exit(1);
         }
     }
+
     /**
      * Verifica se os parâmetros iniciais são válidos e formata-os em linhas.
      *
@@ -120,7 +130,7 @@ public final class QualidadeParser {
                 ArrayList<String> linhas = LeitorArquivo.ler(args[0]);
                 comandos = new String[linhas.size()];
                 for (String item : linhas) {
-                    comandos[i] = item.replace(" ", "");;
+                    comandos[i] = item.replace(" ", "");
                     i++;
                 }
                 return comandos;
@@ -157,23 +167,25 @@ public final class QualidadeParser {
 
         return "" + resultado;
     }
+
     /**
      * Envia a expressão como objeto para o Parser.
+     *
      * @param exp Objeto do tipo Expressão com os dados de uma linha do arquivo
      * @return Resultado recebido pelo Parser
      */
     public static float executarParser(final Expressao exp) {
         float resultado = 0;
-        if (exp.varsNome.length == 0) {
-            List<Token> tokens = new Lexer(exp.equacao).tokenize();
+        if (exp.getVarsNome().length == 0) {
+            List<Token> tokens = new Lexer(exp.getEquacao()).tokenize();
             Parser parser = new Parser(tokens);
             resultado = parser.expressao().valor();
         } else {
             Map<String, Float> ctx = new HashMap<>();
-            for (int i = 0; i < exp.varsNome.length; i++) {
-                ctx.put(exp.varsNome[i], exp.varsValores[i]);
+            for (int i = 0; i < exp.getVarsNome().length; i++) {
+                ctx.put(exp.getVarsNome()[i], exp.getVarsValores()[i]);
             }
-            List<Token> tokens = new Lexer(exp.equacao).tokenize();
+            List<Token> tokens = new Lexer(exp.getEquacao()).tokenize();
             Parser parser = new Parser(tokens);
             resultado = parser.expressao().valor(ctx);
         }
@@ -205,8 +217,10 @@ public final class QualidadeParser {
         return new Expressao(secao[0], Float.parseFloat(secao[2]),
                 varNome, varValor);
     }
+
     /**
      * Calcula quanta memória a Java Virtual Machine está usando (estimativa).
+     *
      * @return quantidade de memória empregada pela JVM no momento.
      */
     public static long memoriaJVM() {

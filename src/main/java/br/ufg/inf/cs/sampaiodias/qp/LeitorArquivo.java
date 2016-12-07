@@ -18,15 +18,25 @@ import java.util.Scanner;
  *
  * @author lucas
  */
-public class LeitorArquivo {
+public final class LeitorArquivo {
+
     /**
      * Restringe criação de instância.
      */
     private LeitorArquivo() {
-        
+
     }
 
-    public static ArrayList<String> ler(final String caminho) 
+    /**
+     * Lê um arquivo txt, separando cada linha.
+     *
+     * @param caminho Diretório local ou endereço http
+     * @return Lista com cada linha do arquivo txt
+     * @throws FileNotFoundException Arquivo não encontrado
+     * @throws MalformedURLException Endereço web inválido
+     * @throws IOException Falha na leitura do arquivo
+     */
+    public static ArrayList<String> ler(final String caminho)
             throws FileNotFoundException, MalformedURLException, IOException {
         try {
             ArrayList<String> linhas = new ArrayList<>();

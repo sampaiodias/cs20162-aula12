@@ -25,7 +25,7 @@
         Determina a Qualidade do Parser.
     </description>
 
-    <url>https://github.com/kyriosdata/exemplo</url>
+    <url>https://github.com/sampaiodias/cs20162-aula12</url>
 
     <organization>
         <name>Instituto de Informática (UFG) - Fábrica de Software</name>
@@ -88,6 +88,12 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>2.7</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.0</version>
         </dependency>
 
     </dependencies>
