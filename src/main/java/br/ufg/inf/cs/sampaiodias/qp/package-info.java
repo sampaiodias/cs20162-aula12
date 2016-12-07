@@ -1,12 +1,9 @@
 /**
- * Pacote do repositório de "exemplo". Contém duas classes
- * apenas: (a) {@link com.github.kyriosdata.exemplo.Calendario} e
- * (b) {@link com.github.kyriosdata.exemplo.ProgramaCalendario}.
- * Observe que essa última classe apenas ilustra como um
- * programa em Java pode chamar o código da classe
- * relevante ({@link com.github.kyriosdata.exemplo.Calendario}).
+ * Pacote do avaliador do Parser a partir de arquivo txt.
  *
- * @see com.github.kyriosdata.exemplo.Calendario
- * @see com.github.kyriosdata.exemplo.ProgramaCalendario
+ * @see br.ufg.inf.cs.sampaiodias.qp.QualidadeParser
+ * @see br.ufg.inf.cs.sampaiodias.qp.Expressao
+ * @see br.ufg.inf.cs.sampaiodias.qp.LeitorArquivo
+ * @see br.ufg.inf.cs.sampaiodias.qp.Relatorio
  */
 package br.ufg.inf.cs.sampaiodias.qp;

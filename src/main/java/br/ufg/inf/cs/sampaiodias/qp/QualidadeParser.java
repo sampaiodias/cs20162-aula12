@@ -8,6 +8,7 @@ import com.github.kyriosdata.parser.Lexer;
 import com.github.kyriosdata.parser.Parser;
 import com.github.kyriosdata.parser.Token;
 import java.io.FileNotFoundException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,48 +35,72 @@ public final class QualidadeParser {
      * @param args Argumentos necessários para avaliar a qualidade do Parser.
      */
     public static void main(final String[] args) {
-
-        String arquivoLocal = "C:/Users/lucas/Documents/teste.txt";
-        String arquivoRemoto = "https://google.com";
-        String[] linhas = tratarArgs(new String[]{arquivoLocal});
+        String arquivoLocal = "C:/Users/lucas/Documents/teste.txt"; //TEST
+        String arquivoRemoto = "https://google.com";                //TEST
+        String[] linhas = tratarArgs(new String[]{arquivoLocal});   //TEST - MUDAR PARA ARGS
         Expressao[] expressoes;
         expressoes = new Expressao[linhas.length];
+        long tempoInicial;
+        long tempoFinal;
+        long duracaoEmNanoS;
+        long tempoMedioEmNanoS;
+        long memInicial;
+        long memFinal;
+
+        if (linhas[0].contains("ERROR ARGS")) {
+            System.out.println("Erro: Argumentos inválidos");
+            System.exit(1);
+        }
+
+        memInicial = memoriaJVM();
+
+        tempoInicial = System.nanoTime();
+
+        for (int i = 0; i < linhas.length; i++) {
+            try {
+                expressoes[i] = gerarExpressao(linhas[i]);
+            } catch (Exception e) {
+                System.out.println("Erro: Linha inválida no arquivo");
+                System.exit(i);
+            }
+            try {
+                expressoes[i].resultadoObtido
+                        = executarParser(expressoes[i]);
+                System.out.println(expressoes[i].resultadoObtido);
+            } catch (Exception e) {
+                expressoes[i].mensagemErro = ("Erro: Parse não pode encontrar "
+                        + "um resultado para " + expressoes[i].equacao);;
+            }
+            if ("".equals(expressoes[i].mensagemErro)) {
+                if (!expressoes[i].testeAcertou()) {
+                    expressoes[i].mensagemErro = ("Erro: Resultado esperado não"
+                            + " é igual a resposta recebida pelo Parser");
+                }
+            }
+        }
+
+        memFinal = memoriaJVM();
+
+        tempoFinal = System.nanoTime();
+        duracaoEmNanoS = (tempoFinal - tempoInicial);
+        tempoMedioEmNanoS = duracaoEmNanoS / expressoes.length;
+
+        long[] tempos = new long[4];
+        tempos[0] = tempoInicial;
+        tempos[1] = tempoFinal;
+        tempos[2] = duracaoEmNanoS;
+        tempos[3] = tempoMedioEmNanoS;
 
         try {
-            if (linhas[0].contains("ERROR ARGS")) {
-                System.out.println("Error: Invalid arguments");
-                System.exit(1);
+            if (args.length > 1 && args[1].toLowerCase().contains("-h")) {
+                Relatorio.gerarHTML(tempos, memInicial, memFinal, expressoes);
+            } else {
+                Relatorio.gerarJSON(tempos, memInicial, memFinal, expressoes);
             }
-            for (int i = 0; i < linhas.length; i++) {
-                try {
-                    expressoes[i] = gerarExpressao(linhas[i]);
-                } catch (Exception e) {
-                    System.out.println("Error: Invalid line!");
-                }
-
-                //expressoes[i].resultadoObtido = executarParser(expressoes[i]);
-            }
-            //System.out.println(executarParser(entrada));
         } catch (Exception e) {
-            System.out.println("Error: Parser error!");
+            System.out.println("Erro: Falha ao gerar o arquivo de relatório.");
         }
-//*********************
-//        float[] teste = new float[2];
-//        teste[0] = 1.2f;
-//        teste[1] = 0.1f;
-//        String[] testeErro = new String[3];
-//        testeErro[0] = null;
-//        testeErro[1] = "Error #12";
-//        testeErro[2] = "Error #45";
-//        try {
-//            Relatorio.gerarJSON(teste, 0, 0, testeErro);
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(QualidadeParser.class.getName()).log(
-//                    Level.SEVERE, null, ex);
-//        }
-//*******************
     }
-
     /**
      * Verifica se os parâmetros iniciais são válidos e formata-os em linhas.
      *
@@ -85,9 +110,9 @@ public final class QualidadeParser {
     public static String[] tratarArgs(final String[] args) {
         String[] comandos = new String[0];
         if (args.length == 0) {
-            System.out.println("Usage: java jar qp.jar fileAddress");
-            System.out.println("You may use -h at the end to export in HTML"
-                    + " instead of JSON.");
+            System.out.println("Uso: java jar qp.jar enderecoDoArquivo");
+            System.out.println("Você pode usar -h ao final para exportar em "
+                    + "HTML ao invés de JSON.");
             return new String[]{"ERROR ARGS"};
         } else {
             int i = 0;
@@ -100,7 +125,8 @@ public final class QualidadeParser {
                 }
                 return comandos;
             } catch (Exception e) {
-                System.out.println("Error: file couldn't be loaded");
+                System.out.println("Erro: Arquivo não pode ser carregado/"
+                        + "encontrado.");
                 return new String[]{"ERROR ARGS"};
             }
         }
@@ -131,6 +157,28 @@ public final class QualidadeParser {
 
         return "" + resultado;
     }
+    /**
+     * Envia a expressão como objeto para o Parser.
+     * @param exp Objeto do tipo Expressão com os dados de uma linha do arquivo
+     * @return Resultado recebido pelo Parser
+     */
+    public static float executarParser(final Expressao exp) {
+        float resultado = 0;
+        if (exp.varsNome.length == 0) {
+            List<Token> tokens = new Lexer(exp.equacao).tokenize();
+            Parser parser = new Parser(tokens);
+            resultado = parser.expressao().valor();
+        } else {
+            Map<String, Float> ctx = new HashMap<>();
+            for (int i = 0; i < exp.varsNome.length; i++) {
+                ctx.put(exp.varsNome[i], exp.varsValores[i]);
+            }
+            List<Token> tokens = new Lexer(exp.equacao).tokenize();
+            Parser parser = new Parser(tokens);
+            resultado = parser.expressao().valor(ctx);
+        }
+        return resultado;
+    }
 
     /**
      * Separa cada informação de uma linha.
@@ -156,5 +204,13 @@ public final class QualidadeParser {
 
         return new Expressao(secao[0], Float.parseFloat(secao[2]),
                 varNome, varValor);
+    }
+    /**
+     * Calcula quanta memória a Java Virtual Machine está usando (estimativa).
+     * @return quantidade de memória empregada pela JVM no momento.
+     */
+    public static long memoriaJVM() {
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.totalMemory() - runtime.freeMemory();
     }
 }

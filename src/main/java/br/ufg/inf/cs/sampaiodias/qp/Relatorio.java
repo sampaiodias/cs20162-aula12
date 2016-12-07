@@ -20,20 +20,16 @@ public final class Relatorio {
         
     }
     /**
-     * Em caso de erro, subtrai-se X chars para retirar a última vírgula (JSON).
-     */
-     private static final int LIMITE_VIRGULA = 3;
-    /**
      * Gera arquivo HTML indicando a duração e o tempo médio de cada teste.
      * 
      * @param duracaoTestes duração em ms de cada teste executado
      * @param memInicial memória inicial empregada pela JVM, antes dos testes
      * @param memFinal memória empregadada pela JVM ao terminar os testes
-     * @param erros mensagem de erro de cada teste, caso houver
+     * @param exp vetor de expressões usadas nos testes
      * @throws java.io.FileNotFoundException
      */
-    public static void gerarHTML(final float[] duracaoTestes, 
-            final float memInicial, final float memFinal, final String[] erros) 
+    public static void gerarHTML(final long[] duracaoTestes, 
+            final long memInicial, final long memFinal, final Expressao[] exp) 
             throws FileNotFoundException{
         StringBuilder relatorio = new StringBuilder();
         
@@ -47,46 +43,14 @@ public final class Relatorio {
      * @param duracaoTestes duração em ms de cada teste executado
      * @param memInicial memória inicial empregadada pela JVM, antes dos testes
      * @param memFinal memória empregadada pela JVM ao terminar os testes
-     * @param erros mensagem de erro de cada teste, caso houver
+     * @param exp vetor de expressões usadas nos testes
      * @throws java.io.FileNotFoundException
      */
-    public static void gerarJSON(final float[] duracaoTestes, 
-            final float memInicial, final float memFinal, final String[] erros) 
+    public static void gerarJSON(final long[] duracaoTestes, 
+            final long memInicial, final long memFinal, final Expressao[] exp) 
             throws FileNotFoundException{
         StringBuilder relatorio = new StringBuilder();
-        relatorio.append("{\n");
         
-        relatorio.append("  \"testsDuration\" : {\n");
-        for(int i = 0; i < duracaoTestes.length; i++){
-            relatorio.append("      \"Test ").append(i).append("\" : ");
-            relatorio.append(duracaoTestes[i]);
-            if (i != duracaoTestes.length - 1){
-                relatorio.append(", \n");
-            }
-        }
-        relatorio.append("\n  },\n");
-        
-        relatorio.append("  \"memoryStart\" : ");
-        relatorio.append(memInicial).append(",\n");
-        relatorio.append("  \"memoryEnd\" : ");
-        relatorio.append(memFinal).append(",\n");
-        
-        relatorio.append("  \"errors\" : {\n");
-        boolean erroEncontrado = false;
-        for (int i = 0; i < erros.length; i++) {
-            if (erros[i] != null){
-                erroEncontrado = true;
-                relatorio.append("      \"Test ").append(i).append("\" : \"");
-                relatorio.append(erros[i]);
-                relatorio.append("\", \n");
-            }
-        }
-        if (erroEncontrado) {
-            relatorio.delete(relatorio.length() - LIMITE_VIRGULA, 
-                    relatorio.length());
-        }
-        
-        relatorio.append("\n  }\n}");
         gerarArquivo(relatorio, false);
     }
     /**
