@@ -106,6 +106,9 @@ public final class QualidadeParser {
 
         if (erroTestes) {
             System.exit(1);
+        } else {
+            System.out.println("Testes executados, "
+                    + "mais informações no relatório");
         }
     }
 
