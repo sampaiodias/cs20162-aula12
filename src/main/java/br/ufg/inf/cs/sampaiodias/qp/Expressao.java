@@ -104,10 +104,19 @@ public class Expressao {
     /**
      * Define na expressão qual foi o valor encontrado como resultado.
      *
-     * @param valor Resultado obtido pelo Patser
+     * @param valor Resultado obtido pelo Parser
      */
     public final void setResObtido(final Float valor) {
         this.resultadoObtido = valor;
+    }
+
+    /**
+     * Retorna o valor esperado para expressão, definido no arquivo txt.
+     *
+     * @return Valor esperado em Float
+     */
+    public final Float getResEsperado() {
+        return this.resultadoEsperado;
     }
 
     /**

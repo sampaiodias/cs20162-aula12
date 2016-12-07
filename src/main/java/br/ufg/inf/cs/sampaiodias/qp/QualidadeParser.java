@@ -39,9 +39,7 @@ public final class QualidadeParser {
      * @param args Argumentos necessários para avaliar a qualidade do Parser.
      */
     public static void main(final String[] args) {
-        String arquivoLocal = "C:/Users/lucas/Documents/teste.txt"; //TEST
-        String arquivoRemoto = "https://google.com";                //TEST
-        String[] linhas = tratarArgs(new String[]{arquivoLocal});   //TEST ARGS
+        String[] linhas = tratarArgs(args);
         Expressao[] expressoes;
         expressoes = new Expressao[linhas.length];
         long tempoInicial;
