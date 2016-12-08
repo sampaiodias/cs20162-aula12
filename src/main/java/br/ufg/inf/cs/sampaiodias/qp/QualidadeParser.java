@@ -43,9 +43,6 @@ public final class QualidadeParser {
         Expressao[] expressoes;
         expressoes = new Expressao[linhas.length];
         long tempoInicial;
-        long tempoFinal;
-        long duracaoEmNanoS;
-        long tempoMedioEmNanoS;
         long memInicial;
         long memFinal;
 
@@ -63,7 +60,7 @@ public final class QualidadeParser {
                 expressoes[i] = gerarExpressao(linhas[i]);
             } catch (Exception e) {
                 System.out.println("Erro: Linha inválida no arquivo");
-                System.exit(i);
+                System.exit(1);
             }
             try {
                 expressoes[i].setResObtido(executarParser(expressoes[i]));
@@ -82,16 +79,8 @@ public final class QualidadeParser {
         }
 
         memFinal = memoriaJVM();
-
-        tempoFinal = System.nanoTime();
-        duracaoEmNanoS = (tempoFinal - tempoInicial);
-        tempoMedioEmNanoS = duracaoEmNanoS / expressoes.length;
-
-        long[] tempos = new long[TAM_VETOR_TEMPO];
-        tempos[0] = duracaoEmNanoS;
-        tempos[1] = tempoMedioEmNanoS;
-        tempos[2] = tempoInicial;
-        tempos[TAM_VETOR_TEMPO - 1] = tempoFinal;
+        long[] tempos = gerarVetorTempos(tempoInicial, System.nanoTime(), 
+                expressoes.length);
 
         try {
             if (args.length > 1 && args[1].toLowerCase().contains("-h")) {
@@ -109,6 +98,7 @@ public final class QualidadeParser {
         } else {
             System.out.println("Testes executados, "
                     + "mais informações no relatório");
+            System.exit(0);
         }
     }
 
@@ -141,32 +131,6 @@ public final class QualidadeParser {
                 return new String[]{"ERROR ARGS"};
             }
         }
-    }
-
-    /**
-     * Envia os parâmetros formatados (token) para o Parser.
-     *
-     * @param args Argumentos enviados para execução
-     * @return Resultado recebido pelo Parser
-     */
-    public static String executarParser(final String[] args) {
-        String stringToken = "";
-        Map<String, Float> ctx = new HashMap<>();
-        for (int i = 0; i < args.length; i++) {
-            try {
-                float test = Float.parseFloat(args[i]);
-                stringToken += test + " ";
-            } catch (Exception e) {
-                stringToken += args[i] + " ";
-            }
-        }
-
-        List<Token> tokens = new Lexer(stringToken).tokenize();
-
-        Parser parser = new Parser(tokens);
-        float resultado = parser.expressao().valor(ctx);
-
-        return "" + resultado;
     }
 
     /**
@@ -227,5 +191,25 @@ public final class QualidadeParser {
     public static long memoriaJVM() {
         Runtime runtime = Runtime.getRuntime();
         return runtime.totalMemory() - runtime.freeMemory();
+    }
+    /**
+     * Gera um vetor com os tempos relevantes para o relatório JSON.
+     * @param tempoInicial momento do início dos testes
+     * @param tempoFinal momento do final dos testes
+     * @param numExps número de expressões que foram testadas
+     * @return vetor de long com duracao, tempoMedio, tempoInicial e tempoFinal
+     */
+    public static long[] gerarVetorTempos(long tempoInicial, long tempoFinal, 
+            int numExps) {
+        long duracaoEmNanoS = (tempoFinal - tempoInicial);
+        long tempoMedioEmNanoS = duracaoEmNanoS / numExps;
+        
+        long[] tempos = new long[TAM_VETOR_TEMPO];
+        tempos[0] = duracaoEmNanoS;
+        tempos[1] = tempoMedioEmNanoS;
+        tempos[2] = tempoInicial;
+        tempos[TAM_VETOR_TEMPO - 1] = tempoFinal;
+        
+        return tempos;
     }
 }
